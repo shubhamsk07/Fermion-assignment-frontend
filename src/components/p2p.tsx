@@ -313,7 +313,7 @@ function P2P() {
                     remoteVideo.srcObject = stream;
                 }
 
-                remoteVideo.muted = false; // ⭐ CHANGED: Don't mute remote video!
+                remoteVideo.muted = true; // ⭐ CHANGED: Don't mute remote video!
                 await remoteVideo.play();
                 setHasRemoteStream(true);
                 console.log('Remote video playing (with audio enabled)');
@@ -329,7 +329,7 @@ function P2P() {
                     remoteVideo.srcObject = stream;
                 }
 
-                remoteVideo.muted = false; // ⭐ CRITICAL: Unmute for audio
+                remoteVideo.muted = true; // ⭐ CRITICAL: Unmute for audio
                 console.log('Added audio track to remote video element');
 
                 // Ensure it's playing
