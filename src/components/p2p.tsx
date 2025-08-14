@@ -55,7 +55,7 @@ function P2P() {
 
 
     useEffect(() => {
-        const socket = new WebSocket('https://192.168.1.7:3001');
+        const socket = new WebSocket('https://35.154.255.219:3002/');
         socketRef.current = socket;
 
         socket.onopen = () => {
