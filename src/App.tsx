@@ -1,5 +1,5 @@
-import React from 'react'
-import { BrowserRouter, Route, Router, Routes } from 'react-router-dom'
+
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import P2P from './components/p2p'
 import LiveHlsPlayer from './components/HlsPlayer'
 

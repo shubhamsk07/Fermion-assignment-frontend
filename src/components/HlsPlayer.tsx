@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import Hls from 'hls.js';
 
 export interface LiveHlsPlayerProps {
@@ -22,7 +22,6 @@ export default function LiveHlsPlayer({
   className = '',
   autoPlay = true,
   muted = true,
-  eventsUrl = null,
   crossOrigin = 'anonymous',
 }: LiveHlsPlayerProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);

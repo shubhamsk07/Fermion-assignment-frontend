@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 
 import * as mediasoupClient from "mediasoup-client";
-import type { RtpCapabilities } from 'mediasoup-client/types';
+import type { Consumer, RtpCapabilities } from 'mediasoup-client/types';
 
 function P2P() {
 
-    const [socket, setSocket] = useState<WebSocket | null>(null);
     const [connecting, setConnecting] = useState('');
 
     const [hasLocalStream, setHasLocalStream] = useState(false);
@@ -16,12 +15,12 @@ function P2P() {
     const remoteAudioRef = useRef<HTMLAudioElement | null>(null); // Add ref for remote audio
     const deviceRef = useRef<mediasoupClient.Device | null>(null);
     const socketRef = useRef<WebSocket | null>(null);
-    const producerTransportRef = useRef<mediasoupClient.Transport | null>(null);
-    const consumerTransportRef = useRef<mediasoupClient.Transport | null>(null);
+    const producerTransportRef = useRef<any | null>(null);
+    const consumerTransportRef = useRef<any | null>(null);
 
     const drawingRef = useRef<boolean>(false);
 
-    const consumersRef = useRef<Map<string, mediasoupClient.Consumer>>(new Map());
+    const consumersRef = useRef<Map<string,Consumer>>(new Map());
 
     useEffect(() => {
 
@@ -57,7 +56,6 @@ function P2P() {
 
     useEffect(() => {
         const socket = new WebSocket('https://192.168.1.7:3001');
-        setSocket(socket);
         socketRef.current = socket;
 
         socket.onopen = () => {
@@ -166,7 +164,7 @@ function P2P() {
             const transport = device.createSendTransport(transportData);
             producerTransportRef.current = transport;
 
-            transport.on('connect', async ({ dtlsParameters }, callback, errback) => {
+            transport.on('connect', async ({ dtlsParameters }, callback) => {
                 console.log("Connecting webcam producer transport");
                 socket.send(JSON.stringify({
                     type: 'connectProducerTransport',
@@ -183,7 +181,7 @@ function P2P() {
                 socket.addEventListener('message', handler);
             });
 
-            transport.on('produce', async ({ kind, rtpParameters }, callback, errback) => {
+            transport.on('produce', async ({ kind, rtpParameters }, callback) => {
                 console.log(`Producing ${kind} media`);
                 socket.send(JSON.stringify({
                     type: 'produce',
@@ -257,7 +255,7 @@ function P2P() {
             const consumerTransport = device.createRecvTransport(transportData);
             consumerTransportRef.current = consumerTransport;
 
-            consumerTransport.on('connect', async ({ dtlsParameters }, callback, errback) => {
+            consumerTransport.on('connect', async ({ dtlsParameters }, callback) => {
                 console.log("Connecting consumer transport");
                 socket.send(JSON.stringify({
                     type: 'connectConsumerTransport',
@@ -275,20 +273,7 @@ function P2P() {
             });
         };
 
-        const consumeVideo = async (producerId: string) => {
-            const device = deviceRef.current;
-            if (!device || !socket) {
-                console.error("Device or socket not ready for consuming");
-                return;
-            }
 
-            console.log('Requesting to consume producer:', producerId);
-            socket.send(JSON.stringify({
-                type: 'consume',
-                producerId,
-                rtpCapabilities: device.rtpCapabilities
-            }));
-        };
 
       const resumeConsumer = async (consumerData: any) => {
     const consumerTransport = consumerTransportRef.current;
@@ -377,7 +362,6 @@ function P2P() {
 
         // Handle canvas transport creation response
 
-
         socket.onerror = (error) => {
             console.error('WebSocket error:', error);
         };
@@ -394,7 +378,6 @@ function P2P() {
 
             consumersRef.current.forEach(consumer => consumer.close());
             consumersRef.current.clear();
-
             socket.close();
         };
     }, []);
@@ -407,7 +390,6 @@ function P2P() {
             console.warn("Socket or device not ready");
             return;
         }
-
         if (hasLocalStream) {
             alert('Webcam is already streaming');
             return;
